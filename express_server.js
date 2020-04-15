@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-const cookieParser = require('cookie-parser')
+const cookieParser = require("cookie-parser")
 app.use(cookieParser())
 
 
@@ -75,7 +75,8 @@ app.post("/register", (req, res) => {
   users[id] = { id, email, password }
   res.cookie("user_id", id)
   res.cookie("email", email)
-  res.redirect("/urls")
+  console.log(users);
+  res.redirect("/register")
 });
 
 
@@ -120,13 +121,18 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/login", (req, res) => {
   res.cookie("user_id", req.body.user_id)
   //console.log(req.body.user_id)
-  res.redirect(`/urls`);
+  res.redirect("/login");
  });   
  app.post("/logout", (req, res) => {
   res.clearCookie("user_id", req.body.user_id)
-  res.redirect(`/urls`);
+  res.clearCookie("email", req.body.email)
+  res.redirect("/urls");
 });   
 
+app.get("/login", (req, res) => {
+  let templateVars = { user_id: req.cookies["user_id"], email: req.cookies["email"], urls: urlDatabase };
+  res.render("urls_login", templateVars);
+})
 
 
 app.listen(PORT, () => {
@@ -142,7 +148,7 @@ function emailExists(email) {
   return false;
 };
 function generateRandomString() {
-    const tinyString = [...Array(6)].map(() => Math.random().toString(36)[2]).join('')
+    const tinyString = [...Array(6)].map(() => Math.random().toString(36)[2]).join("")
     return tinyString;
 //referenced: https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
  }

@@ -13,8 +13,12 @@
     <% if(!user_id) {%>
     <form class="form-inline" action="/login" method="POST"> 
       <div class="form-group mb-2">
-        <input class="form-control" name="username" placeholder="Username" style="width: 300px; margin: 1em;">
-        <button type="submit" type="text"  class="btn btn-primary">Login</button>
+        <button type="" type="text" style="margin: 1em"  class="btn btn-primary">Login</button>
+      </div>  
+    </form>
+    <form class="form-inline" action="/register" method="POST"> 
+      <div class="form-group mb-2">
+        <button type="" type="text" style="margin: 1em"  class="btn btn-primary">Register</button>
       </div>  
     </form>
     <%} %>
