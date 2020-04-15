@@ -61,6 +61,17 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  if (emailExists(email) === true) {
+    res.send(400, "Email already in use")
+    console.log(users);
+  }
+  else if (email.length === 0 || password.length === 0) {
+    console.log(users);
+    res.send(400, "Empty Field")
+  }  
+  // else if (users[email]){
+  //   res.send(400, "Email already in use")
+  // }
   users[id] = { id, email, password }
   res.cookie("user_id", id)
   res.cookie("email", email)
@@ -122,6 +133,14 @@ app.listen(PORT, () => {
   console.log(`We're here live on port ${PORT}!!!! `);
 });
 
+function emailExists(email) {
+  for (let user in users) {
+    if (email === users[user].email) {
+      return true
+    }
+  }
+  return false;
+};
 function generateRandomString() {
     const tinyString = [...Array(6)].map(() => Math.random().toString(36)[2]).join('')
     return tinyString;
