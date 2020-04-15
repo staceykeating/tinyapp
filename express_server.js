@@ -34,7 +34,12 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  res.render("urls_new", templateVars);
+});
+
+app.get("/registration", (req, res) => {
+  res.render("urls_registration");
 });
 
 
