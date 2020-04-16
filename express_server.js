@@ -47,10 +47,29 @@ app.get("/urls", (req, res) => {
 
 //MAKE A NEW URL
 app.get("/urls/new", (req, res) => {
-  let templateVars = { user_id: req.cookies["user_id"], email: req.cookies["email"], urls: urlDatabase };
+  const { user_id } = req.cookies;
+  console.log(user_id);
+  let loggedinUser = users[user_id]
+  
+  if (loggedinUser !== undefined) {
+    let templateVars = { user_id: req.cookies["user_id"], email: req.cookies["email"], urls: urlDatabase };
   res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
+// const { username } = req.cookies;
+// const loggedInUser = users[username];
+
+// if (loggedInUser) {
+//   const templateVars = {
+//     user: loggedInUser
+//   }
+//   res.render("treasure", templateVars);
+// } else {
+//   res.redirect('/');
+//}
 //REGISTRATION STUFF
 app.get("/register", (req, res) => {
   let templateVars = { user_id: req.cookies["user_id"], email: req.cookies["email"], urls: urlDatabase };
@@ -67,10 +86,8 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   if (emailExists(email) === true) {
     res.send(400, "Email already in use")
-    console.log(users);
   }
   else if (email.length === 0 || password.length === 0) {
-    console.log(users);
     res.send(400, "Empty Field")
   }  
   // else if (users[email]){
@@ -79,7 +96,6 @@ app.post("/register", (req, res) => {
   users[id] = { id, email, password }
   res.cookie("user_id", id)
   res.cookie("email", email)
-  console.log(users);
   res.redirect("/urls")
 });
 
@@ -97,7 +113,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = {   user_id: req.cookies["user_id"],
+  let templateVars = {   user_id: req.cookies["user_id"], email: req.cookies["email"], 
   shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("urls_show", templateVars);
 })
