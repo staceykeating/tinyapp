@@ -6,21 +6,20 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require("cookie-parser")
 app.use(cookieParser())
 
-
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "s2k38g" },
+  "9sm5xK": {longURL: "http://www.google.com", userID: "user1" }
 };
 
 const users = { 
-  "userRandomID": {
+  "user1": {
     id: "user1", 
     email: "user1@example.com", 
     password: "123"
   },
- "user2RandomID": {
+ "user2": {
     id: "user2", 
     email: "user2@example.com", 
     password: "456"
@@ -37,13 +36,21 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { user_id: req.cookies["user_id"], email: req.cookies["email"], urls: urlDatabase };
+  const { user_id } = req.cookies;
+  console.log(urlDatabase);
+  let loggedinUser = users[user_id]
+  let toDisplayURLS = getURLS(user_id)
+ 
+  if (loggedinUser !== undefined) {
+  let templateVars = { user_id: req.cookies["user_id"], email: req.cookies["email"], urls: toDisplayURLS };
   res.render("urls_index", templateVars);
+  }
+  else (res.send("Please login to view."))
 });
 
-//app.get("/urls.json", (req, res) => {
-//  res.json(urlDatabase);
-//});
+app.get("/urls.json", (req, res) => {
+ res.json(urlDatabase);
+});
 
 //MAKE A NEW URL
 app.get("/urls/new", (req, res) => {
@@ -108,8 +115,8 @@ app.get("/u/:shortURL", (req, res) => {
 // URLS/PAGES
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;  
-  res.redirect(`/urls/${shortURL}`)  
+  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] }  // => shorlUrl : 'string'
+  res.redirect(`/urls/${shortURL}`)           // => shortIrl : {longUrL, UserID}
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -180,6 +187,19 @@ app.post("/login", (req, res) => {
 app.listen(PORT, () => {
   console.log(`We're here live on port ${PORT}!!!! `);
 });
+
+const getURLS = (userID) => {
+  console.log({userID})
+  let urlsToDisplay = {};
+  for (let urls in urlDatabase) {
+    if (urlDatabase[urls].userID === userID) {
+      urlsToDisplay[urls] = urlDatabase[urls]
+      
+    }
+  }
+  return urlsToDisplay;
+};
+
 
 function emailExists(email) {
   for (let user in users) {
