@@ -57,6 +57,10 @@ app.get("/register", (req, res) => {
   res.render("urls_registration", templateVars);
 });
 
+app.post("/registerdirect", (req, res) => {
+res.redirect("/register")
+});
+
 app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
@@ -76,7 +80,7 @@ app.post("/register", (req, res) => {
   res.cookie("user_id", id)
   res.cookie("email", email)
   console.log(users);
-  res.redirect("/register")
+  res.redirect("/urls")
 });
 
 
@@ -118,20 +122,42 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 })
 
 //LOG IN AND LOG OUT
-app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body.user_id)
+app.post("/logindirect", (req, res) => {
   //console.log(req.body.user_id)
   res.redirect("/login");
  });   
  app.post("/logout", (req, res) => {
   res.clearCookie("user_id", req.body.user_id)
-  res.clearCookie("email", req.body.email)
   res.redirect("/urls");
 });   
 
 app.get("/login", (req, res) => {
   let templateVars = { user_id: req.cookies["user_id"], email: req.cookies["email"], urls: urlDatabase };
   res.render("urls_login", templateVars);
+})
+
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const id = returnID(email)
+  // needs to see if the emailExists, if it does it needs to cookie the email
+  if (emailExists(email) === false) {
+    res.send(403, "Email not in use, please register.")
+  }
+  else if (emailExists(email) === true && users[id].password !== password) {
+    //console.log("Matched");
+    res.send(403, "Password incorrect")
+  }
+  else if (emailExists(email) === true && users[id].password === password) {
+    //console.log("Matched");
+    res.cookie("email", email)
+    res.cookie("user_id", id)
+    res.redirect("/urls");
+  }
+  //users[id] = { email, password }
+
+  //console.log(users);
+
 })
 
 
@@ -147,6 +173,17 @@ function emailExists(email) {
   }
   return false;
 };
+function returnID (email) {
+  let id;
+    for (let user in users) {
+      if (email === users[user].email) {
+        id = users[user].id
+          return id;
+      }
+    }
+    return false;
+  };
+
 function generateRandomString() {
     const tinyString = [...Array(6)].map(() => Math.random().toString(36)[2]).join("")
     return tinyString;
