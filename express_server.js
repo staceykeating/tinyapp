@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
-
+const { returnID } = require('./helpers');
 const cookieSession = require('cookie-session')
 //const cookieParser = require("cookie-parser")
 app.use(bodyParser.urlencoded({extended: true}));
@@ -245,16 +245,16 @@ function emailExists(email) {
   }
   return false;
 };
-function returnID (email, users) {
-  let id;
-    for (let user in users) {
-      if (email === users[user].email) {
-        id = users[user].id
-          return id;
-      }
-    }
-    return false;
-  };
+// function returnID (email, users) {
+//   let id;
+//     for (let user in users) {
+//       if (email === users[user].email) {
+//         id = users[user].id
+//           return id;
+//       }
+//     }
+//     return false;
+//   };
 
 function generateRandomString() {
     const tinyString = [...Array(6)].map(() => Math.random().toString(36)[2]).join("")
