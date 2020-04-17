@@ -2,8 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
+const bcrypt = require('bcrypt');
 const cookieParser = require("cookie-parser")
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 
 app.set("view engine", "ejs");
@@ -17,12 +18,12 @@ const users = {
   "user1": {
     id: "user1", 
     email: "user1@example.com", 
-    password: "123"
+    hashedPassword: bcrypt.hashSync("123", 10)
   },
  "user2": {
     id: "user2", 
     email: "user2@example.com", 
-    password: "456"
+    hashedPassword: bcrypt.hashSync("456", 10)
   }
 }
 //TESTING STUFF:
@@ -90,6 +91,9 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  console.log(users);
+
   if (emailExists(email) === true) {
     res.send(400, "Email already in use")
   }
@@ -99,9 +103,10 @@ app.post("/register", (req, res) => {
   // else if (users[email]){
   //   res.send(400, "Email already in use")
   // }
-  users[id] = { id, email, password }
+  users[id] = { id, email, hashedPassword }
   res.cookie("user_id", id)
   res.cookie("email", email)
+  console.log(users);
   res.redirect("/urls")
 });
 
@@ -150,10 +155,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (loggedinUser !== undefined) {
   delete urlDatabase[req.params.shortURL]
     res.redirect("/urls");
-  }else {
+  } else {
     res.send(400, "Please log in"); 
   }
-})
+});
 app.get("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
@@ -165,6 +170,7 @@ app.post("/logindirect", (req, res) => {
  });   
  app.post("/logout", (req, res) => {
   res.clearCookie("user_id", req.body.user_id)
+  res.clearCookie("email", req.body.email);
   res.redirect("/urls");
 });   
 
@@ -175,17 +181,24 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   const email = req.body.email;
+  const userID = returnID(email)
+  console.log(users[userID].hashedPassword);
   const password = req.body.password;
+  const hashedPassword = users[userID].hashedPassword
+
+
+  
   const id = returnID(email)
   // needs to see if the emailExists, if it does it needs to cookie the email
   if (emailExists(email) === false) {
     res.send(403, "Email not in use, please register.")
   }
-  else if (emailExists(email) === true && users[id].password !== password) {
+  else if (emailExists(email) === true && (bcrypt.compareSync(password, hashedPassword)) == false) // returns true
+  {
     //console.log("Matched");
     res.send(403, "Password incorrect")
   }
-  else if (emailExists(email) === true && users[id].password === password) {
+  else if (emailExists(email) === true && (bcrypt.compareSync(password, hashedPassword))) {
     //console.log("Matched");
     res.cookie("email", email)
     res.cookie("user_id", id)
@@ -240,3 +253,5 @@ function generateRandomString() {
  }
  //console.log(generateRandomString());
  
+
+ console.log(`bc crypt test:`, (bcrypt.compareSync('123', '123')));
