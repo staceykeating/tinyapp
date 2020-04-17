@@ -3,15 +3,15 @@ const bcrypt = require('bcrypt');
 const returnID = (email, users) => {
   let id;
   for (let user in users) {
-    if (email === users[user].email) {
-      id = users[user].id
-      return id;
+    if (email === users[user].email) { //checking if the email entered matches a user in database email
+      id = users[user].id;
+      return id;                       //gives userID to be used to retrieve other info from database
     }
   }
   return false;
 };
 
-const getURLS = (userID) => {
+const getURLS = (userID) => { //goes through all URLS and returns to us only the URLs of the currently logged in user
   let urlsToDisplay = {};
   for (let urls in urlDatabase) {
     if (urlDatabase[urls].userID === userID) {
@@ -22,7 +22,7 @@ const getURLS = (userID) => {
 };
 
 
-const emailExists = (email) => {
+const emailExists = (email) => { //check if email is in database
   for (let user in users) {
     if (email === users[user].email) {
       return true;
@@ -31,7 +31,7 @@ const emailExists = (email) => {
   return false;
 };
 
-const generateRandomString = function() {
+const generateRandomString = function() { //for userID and tinyURL generating
   const tinyString = [...Array(6)].map(() => Math.random().toString(36)[2]).join("");
   return tinyString; //referenced: https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 };
@@ -54,4 +54,4 @@ const users = {
   }
 };
 
-module.exports = { returnID, getURLS, emailExists, generateRandomString, urlDatabase, users }; 
+module.exports = { returnID, getURLS, emailExists, generateRandomString, urlDatabase, users };
