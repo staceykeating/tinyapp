@@ -193,23 +193,19 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   const email = req.body.email;
-  const userID = returnID(email)
+  const userID = returnID(email, users)
   const password = req.body.password;
-  const hashedPassword = users[userID].hashedPassword
 
-
-  
-  const id = returnID(email)
   // needs to see if the emailExists, if it does it needs to cookie the email
   if (emailExists(email) === false) {
     res.send(403, "Email not in use, please register.")
   }
-  else if (emailExists(email) === true && (!bcrypt.compareSync(password, hashedPassword))) // returns true
-  {
-    //console.log("Matched");
+  else if (emailExists(email) === true) {
+    const hashedPassword = users[userID].hashedPassword
+  if  (!bcrypt.compareSync(password, hashedPassword)) {// returns true  
     res.send(403, "Password incorrect")
   }
-  else if (emailExists(email) === true && (bcrypt.compareSync(password, hashedPassword))) {
+  else if (bcrypt.compareSync(password, hashedPassword)) {
     //console.log("Matched");
     req.session.user_id = userID
     req.session.email = email
@@ -217,6 +213,7 @@ app.post("/login", (req, res) => {
    // res.cookie("user_id", id)
     res.redirect("/urls");
   }
+}
   //users[id] = { email, password }
 
   //console.log(users);
@@ -248,7 +245,7 @@ function emailExists(email) {
   }
   return false;
 };
-function returnID (email) {
+function returnID (email, users) {
   let id;
     for (let user in users) {
       if (email === users[user].email) {
