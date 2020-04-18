@@ -37,7 +37,7 @@ const generateRandomString = function() { //for userID and tinyURL generating
 };
 
 const urlDatabase = {
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "s2k38g" },
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "user2" },
   "9sm5xK": {longURL: "http://www.google.com", userID: "user1" }
 };
 
@@ -53,5 +53,6 @@ const users = {
     hashedPassword: bcrypt.hashSync("456", 10)
   }
 };
+
 
 module.exports = { returnID, getURLS, emailExists, generateRandomString, urlDatabase, users };
